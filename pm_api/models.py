@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
 
+from price_monitor_project import settings
 
 # Create your models here.
 class UserProfileManager(BaseUserManager):
@@ -59,3 +60,45 @@ class UserProfile(
     def __str__(self):  # recommended for all django models
         '''returns string representation of user model'''
         return self.email
+
+
+class Product(models.Model):
+    url = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.url
+
+
+class PriceHistory(models.Model):
+    price = models.DecimalField(max_digits=7, decimal_paces=2)
+    currency = models.CharField(max_length=3)
+    last_updated = models.DateTimeField(auto_now_add=True)
+    product = models.ForeignKey(
+        Product,
+        related_name='product_price_histories',
+        on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['-last_updated']
+
+    def __str__(self):
+        return f'Price is {self.price} as of {self.last_updated}'
+    
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE
+    )
+    added_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-added_on']
+
+    def __str__(self):
+        return f'Wishlist of {self.user.name} product: {self.product.url}'
