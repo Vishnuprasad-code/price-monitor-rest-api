@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.auth.models import PermissionManager
+from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
 
 
@@ -20,7 +20,7 @@ class UserProfileManager(BaseUserManager):
 
         return user
 
-    def create_super_user(self, email, name, password):
+    def create_superuser(self, email, name, password):
         '''create a new super user'''
         user = self.create_user(email, name, password)
         
@@ -32,8 +32,9 @@ class UserProfileManager(BaseUserManager):
 
 
 
-class UserProfile(AbstractBaseUser,
-                  PermissionManager
+class UserProfile(
+    AbstractBaseUser,
+    PermissionsMixin
 ):
     '''Database model for users in the system'''
     email = models.EmailField(max_length=255, unique=True)
@@ -50,7 +51,11 @@ class UserProfile(AbstractBaseUser,
     def get_full_name(self):
         '''Returns full name of user'''
         return self.name
-    
+
+    def get_short_name(self):
+        '''Returns full name of user'''
+        return self.name
+
     def __str__(self):  # recommended for all django models
         '''returns string representation of user model'''
         return self.email
