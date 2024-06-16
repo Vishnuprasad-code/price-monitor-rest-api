@@ -71,13 +71,14 @@ class Product(models.Model):
 
 
 class PriceHistory(models.Model):
-    price = models.DecimalField(max_digits=7, decimal_paces=2)
+    price = models.DecimalField(max_digits=7, decimal_places=2)
     currency = models.CharField(max_length=3)
     last_updated = models.DateTimeField(auto_now_add=True)
     product = models.ForeignKey(
         Product,
+        on_delete=models.CASCADE,
         related_name='product_price_histories',
-        on_delete=models.CASCADE)
+    )
 
     class Meta:
         ordering = ['-last_updated']
@@ -89,7 +90,8 @@ class PriceHistory(models.Model):
 class Wishlist(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='user_wishlist_items'
     )
     product = models.ForeignKey(
         Product,
