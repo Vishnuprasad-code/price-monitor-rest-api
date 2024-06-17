@@ -111,8 +111,7 @@ class WishlistView(APIView):
     authentication_classes = (TokenAuthentication, )
     permission_classes = (IsAuthenticated, )
     def post(self, request, format=None):
-        user = request.user
-
+        user = get_user_model().objects.get(email=request.user.email)
         product, created = models.Product.objects.get_or_create(
             url=request.data['url'],
             name=request.data['name'],
@@ -130,7 +129,6 @@ class WishlistView(APIView):
         )
     
     def get(self, request, format=None):
-        
         user = get_user_model().objects.get(email=request.user.email)
         wishlist = user.user_wishlist_items.all()
         wishlist_serializer = self.wishlist_serializer_class(wishlist, many=True)
@@ -138,5 +136,31 @@ class WishlistView(APIView):
             {
                 'message': 'Wishlisted products',
                 'data': wishlist_serializer.data,
+            }
+        )
+
+
+class ProductHistoryView(APIView):
+    input_serializer_class = serializers.ProductHistorySerializer
+    product_history_serializer_class = serializers.ProductHistoryModelSerializer
+
+    authentication_classes = (TokenAuthentication, )
+    permission_classes = (IsAuthenticated, )
+    def post(self, request, format=None):
+        input_serializer = self.input_serializer_class(data=request.data)
+        if not input_serializer.is_valid():
+            return Response(
+                input_serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        product_url = input_serializer.validated_data.get('url')
+        product = models.Product.objects.get(url=product_url)
+        product_history = product.product_price_histories.all()
+        product_history_serializer = self.product_history_serializer_class(product_history, many=True)
+        return Response(
+            {
+                'message': 'Product History',
+                'data': product_history_serializer.data,
             }
         )

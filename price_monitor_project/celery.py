@@ -13,6 +13,17 @@ app = Celery('price_monitor_project')
 #   should have a `CELERY_` prefix.
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
+
+app.conf.beat_schedule = {
+    'add-every-30-minutes': {
+        'task': "pm_api.tasks.update_price_tables",
+        'schedule': 900.0,
+        # 'args': (16, 16)
+    },
+}
+app.conf.timezone = 'UTC'
+
+
 # Load task modules from all registered Django apps.
 app.autodiscover_tasks()
 

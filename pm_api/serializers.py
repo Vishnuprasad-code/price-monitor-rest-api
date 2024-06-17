@@ -47,3 +47,20 @@ class WishlistModelSerializer(serializers.ModelSerializer):
         model = models.Wishlist  # set WishlistModelSerializer to point to Product model
         fields = ('product', 'added_on')
 
+
+class ProductHistorySerializer(serializers.Serializer):
+    '''Serializes a name field for testing our APIview'''
+    url = serializers.CharField(max_length=255)
+
+
+class ProductHistoryModelSerializer(serializers.ModelSerializer):
+    '''Serializes a Wishlist model'''
+    product = ProductModelSerializer(read_only=True)
+    class Meta:
+        model = models.PriceHistory  # set WishlistModelSerializer to point to Product model
+        fields = (
+            'product',
+            'price',
+            'currency',
+            'last_updated'
+        )
